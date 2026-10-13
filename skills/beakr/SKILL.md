@@ -51,9 +51,10 @@ You are not just a read interface. When the conversation produces something dura
 
 | Tool | When to use |
 |------|-------------|
-| `research` | First choice for broad questions. Searches the knowledge base, documents, and connected services (Slack, Gmail, Calendar, Jira...) in one call. Returns a cited answer. |
 | `knowledge_base` | Every read over the wiki, chosen by `command`: `sections`, `grep`, `ls`, `cat`, `hover`, `links`, `references`, `timeline`, `rows` (every map card's Facts, Connections or Findings as one table), `provenance`, `blame`, `sources`, `log`, `diff`, `show`, `ontology`, `suggest_parent`, `diagnostics`, `completions`, `proposals`. |
 | `knowledge_base_write` | Every change, chosen by `action`: `edit_section`, `add_fact`, `add_connection`, `add_finding`, `edit_rows`, `new`, `edit`, `find_replace`, `mv`, `archive`, `merge`, `copy`, `page_type`. Always stages a proposal. On a project-map card use the three `add_*` actions to add one row or one dated finding, and `edit_rows` to change, merge or delete rows. |
+| `read_file` | The original document a citation points at. Pass the file id, or the whole `{{artifact:...}}` token from a read; long files come back in pieces (`offset`). |
+| `research` | When your client exposes it: one cited answer across the knowledge base, documents and connected services (Slack, Gmail, Calendar, Jira...). |
 | `show_proposal` / `accept_proposal` / `dismiss_proposal` | Review a staged proposal; accept only when the user explicitly asks. |
 | `list_projects` | Discover projects (including the personal one) to use as `scope`. |
 | `get_profile`, `wiki_stats`, `wiki_graph` | Org/project profile, counts, and the most-connected pages. |
@@ -69,14 +70,28 @@ knowledge_base_write(action="edit_section", scope="Team Wiki", arguments={...})
 
 There is no `search` command. Use `sections` (semantic, start here) or `grep` (literal text).
 
+## Reading evidence
+
+- **Start with `sections`.** Each hit shows the document passage (a verbatim excerpt) that supports it. Quote it directly; open the file only when the value you need is not in the excerpt.
+- **The knowledge base replaces a corpus grep.** For "every X", counts and superlatives use `ls` (by `page_type`) or `rows` (one table of every card's facts). Do not extract the documents and grep them; every document, its date and matter are already indexed.
+- **Results stay under about 6k tokens.** When `next` appears, page with it rather than re-querying.
+- **Exact wording:** `sources {page}` lists every cited passage; `read_file` with the uuid inside an `{{artifact:...}}` token (or the token itself) opens the original.
+- **Codex:** print only the result's text, and make one Knowledge call per exec cell.
+
 ## Quick decision tree
 
 ```
-User asks a question about their org
+User asks a question about their org, a fact, a decision or a page
+  → knowledge_base sections {query}; quote the excerpt, or cat {page, section_id} on the best hit
+
+User asks a broad question and research is available
   → research(query=...)
 
-User asks about a specific fact, decision, or page
-  → knowledge_base sections {query}, then cat {page, section_id} on the best hit
+User asks for every X, a count or a superlative
+  → knowledge_base ls {page_type} or rows {table: facts, ...}
+
+User needs the exact wording or a value the excerpt lacks
+  → knowledge_base sources {page}, then read_file {artifact_id: <the token's uuid>}
 
 User wants an exact name, ID, or phrase
   → knowledge_base grep {query}

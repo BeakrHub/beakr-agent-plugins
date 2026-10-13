@@ -8,13 +8,13 @@ Use this workflow when the user needs a thorough, multi-source analysis of a top
 
 Call `list_projects` to understand the org structure, and `wiki_stats` (with `project` when one is clearly relevant) to know where knowledge lives.
 
-### 2. Ask the researcher
+### 2. Broad wiki search
 
-Call `research` with the question. It searches the wiki, documents, and connected services and returns a cited answer. Treat it as a starting map, not the final word.
+Run `knowledge_base` command `sections` with 2-3 phrasings -- it is semantic, so natural language works. Each hit carries the verbatim document passage that supports it: quote that rather than opening the file. Use `grep` for exact names, IDs, or phrases; if a literal `grep` misses, the wording may differ, so retry with `sections` rather than concluding the knowledge base lacks it. For "every X", counts and superlatives, list the population with `ls` (by `page_type`) or `rows` instead of extracting and grepping the documents.
 
-### 3. Broad wiki search
+### 3. Ask the researcher (when available)
 
-Run `knowledge_base` command `sections` with 2-3 phrasings in parallel -- it is semantic, so natural language works. Use `grep` for exact names, IDs, or phrases; if a literal `grep` misses, the wording may differ, so retry with `sections` rather than concluding the knowledge base lacks it.
+If your client exposes `research`, call it with the question. It searches the wiki, documents, and connected services and returns a cited answer. Treat it as a starting map, not the final word.
 
 ### 4. Deep read
 
