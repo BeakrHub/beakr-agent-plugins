@@ -14,10 +14,12 @@ jobs:
     name: Manifests and generated configs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
         with:
           python-version: "3.12"
+          # No lockfile to key a cache on; the only dependency is jsonschema.
+          enable-cache: false
       - name: Manifests validate against their schemas
         run: uv run --with jsonschema python tools/validate.py
       - name: Generated MCP configs and install links are current
@@ -29,8 +31,8 @@ jobs:
     name: Claude Code plugin validator
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - run: npm install --global @anthropic-ai/claude-code
@@ -43,7 +45,7 @@ jobs:
     name: Shell scripts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: shellcheck
         run: shellcheck --shell=sh scripts/beakr-mcp scripts/beakr-hook scripts/find-beakr tools/smoke_install.sh
       - name: Launchers fail cleanly without the beakr CLI
