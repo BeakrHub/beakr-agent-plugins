@@ -13,6 +13,7 @@ jobs:
   manifests:
     name: Manifests and generated configs
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0
@@ -30,6 +31,7 @@ jobs:
   claude-code:
     name: Claude Code plugin validator
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -44,6 +46,7 @@ jobs:
   scripts:
     name: Shell scripts
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: shellcheck
