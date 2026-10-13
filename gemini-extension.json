@@ -1,0 +1,14 @@
+{
+  "name": "beakr",
+  "version": "0.1.0",
+  "description": "Beakr, your team's organizational memory: research with citations and read and write the knowledge base from your agent.",
+  "mcpServers": {
+    "beakr": {
+      "command": "sh",
+      "args": [
+        "${extensionPath}${/}scripts${/}beakr-mcp"
+      ]
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}

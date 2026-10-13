@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "beakr": {
+      "url": "https://api.thebeakr.com/mcp"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+# Beakr's local MCP server: needs the beakr CLI installed and signed in
+# (`beakr auth login`, or BEAKR_API_KEY passed through env_vars below).
+# If Codex cannot find `beakr`, replace it with the output of `which beakr`.
+[mcp_servers.beakr]
+command = "beakr"
+args = ["mcp"]
+env_vars = ["BEAKR_API_KEY", "BEAKR_API_URL"]

@@ -1,0 +1,19 @@
+{
+  "name": "beakr",
+  "owner": {
+    "name": "Beakr",
+    "email": "hello@thebeakr.com"
+  },
+  "metadata": {
+    "description": "Beakr for coding agents: the Beakr skill and MCP server."
+  },
+  "plugins": [
+    {
+      "name": "beakr",
+      "source": "./",
+      "description": "Research your organization's knowledge with citations and read and write the knowledge base.",
+      "version": "0.1.0",
+      "category": "productivity"
+    }
+  ]
+}

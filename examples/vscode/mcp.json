@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "beakr": {
+      "type": "stdio",
+      "command": "beakr",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}

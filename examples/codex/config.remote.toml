@@ -1,0 +1,4 @@
+# Beakr's hosted MCP server. After adding this, sign in with:
+#   codex mcp login beakr
+[mcp_servers.beakr]
+url = "https://api.thebeakr.com/mcp"

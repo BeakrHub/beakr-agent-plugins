@@ -1,0 +1,18 @@
+{
+  "kb-search.md": {
+    "description": "Search the Beakr knowledge base and answer from the pages it finds",
+    "argument-hint": "<what to look for>"
+  },
+  "kb-research.md": {
+    "description": "Research a topic across the Beakr knowledge base and connected sources, with citations",
+    "argument-hint": "<topic or question>"
+  },
+  "kb-write.md": {
+    "description": "Create or update a Beakr knowledge base page (staged as a proposal)",
+    "argument-hint": "<what to capture>"
+  },
+  "kb-audit.md": {
+    "description": "Audit Beakr knowledge base pages for quality issues",
+    "argument-hint": "[focus: a project, page or kind of issue]"
+  }
+}

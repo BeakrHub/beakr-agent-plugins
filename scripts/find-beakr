@@ -1,0 +1,34 @@
+#!/bin/sh
+# Print the path of the installed `beakr` CLI, or exit 1 if there is none.
+#
+# Agents started from a GUI (Claude desktop, Cursor, VS Code) often do not
+# inherit the shell's PATH, so the usual install locations are checked too.
+# BEAKR_BIN overrides everything, for a CLI installed somewhere unusual.
+
+if [ -n "${BEAKR_BIN:-}" ]; then
+    if [ -x "$BEAKR_BIN" ]; then
+        printf '%s\n' "$BEAKR_BIN"
+        exit 0
+    fi
+    echo "BEAKR_BIN is set to '$BEAKR_BIN', which is not an executable file." >&2
+    exit 1
+fi
+
+if found=$(command -v beakr 2>/dev/null) && [ -n "$found" ]; then
+    printf '%s\n' "$found"
+    exit 0
+fi
+
+# uv tool / pipx / pip --user, then Homebrew.
+for candidate in \
+    "${XDG_BIN_HOME:-$HOME/.local/bin}/beakr" \
+    "$HOME/.local/bin/beakr" \
+    "/opt/homebrew/bin/beakr" \
+    "/usr/local/bin/beakr"; do
+    if [ -x "$candidate" ]; then
+        printf '%s\n' "$candidate"
+        exit 0
+    fi
+done
+
+exit 1

@@ -1,0 +1,21 @@
+#!/bin/sh
+# Start Beakr's local MCP server (`beakr mcp`, stdio) for any agent client.
+#
+# Every client's MCP config points here instead of at `beakr` directly, so a
+# missing CLI fails with an install hint instead of a bare "command not found",
+# and a GUI-launched client still finds a CLI installed outside its PATH.
+
+here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+
+if ! beakr=$(sh "$here/find-beakr"); then
+    cat >&2 <<'EOF'
+Beakr MCP server: the `beakr` CLI is not installed, so Beakr's tools are unavailable.
+Install it, sign in, then restart your agent:
+  curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh
+  beakr auth login
+(Or set BEAKR_BIN to the path of an existing `beakr` binary.)
+EOF
+    exit 127
+fi
+
+exec "$beakr" mcp "$@"

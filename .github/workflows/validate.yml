@@ -1,0 +1,63 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifests:
+    name: Manifests and generated configs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Manifests validate against their schemas
+        run: uv run --with jsonschema python tools/validate.py
+      - name: Generated MCP configs and install links are current
+        run: uv run python tools/render_configs.py --check
+      - name: Skill and commands match the pinned beakr-cli commit
+        run: uv run python tools/sync_from_beakr_cli.py --check
+
+  claude-code:
+    name: Claude Code plugin validator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - run: npm install --global @anthropic-ai/claude-code
+      - name: Marketplace
+        run: claude plugin validate . --strict
+      - name: Plugin manifest, skills, commands and hooks
+        run: claude plugin validate .claude-plugin/plugin.json --strict
+
+  scripts:
+    name: Shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: shellcheck
+        run: shellcheck --shell=sh scripts/beakr-mcp scripts/beakr-hook scripts/find-beakr tools/smoke_install.sh
+      - name: Launchers fail cleanly without the beakr CLI
+        run: |
+          # A HOME and PATH with no beakr anywhere the launcher looks.
+          export HOME="$(mktemp -d)"
+          # MCP launcher: exits 127 with the install hint.
+          set +e
+          PATH=/usr/bin:/bin sh scripts/beakr-mcp </dev/null 2>err.txt
+          status=$?
+          set -e
+          test "$status" -eq 127
+          grep -q "beakr auth login" err.txt
+          # Hooks: exit 0; only SessionStart says why Beakr is missing.
+          echo '{}' | PATH=/usr/bin:/bin sh scripts/beakr-hook session-start | grep -q "CLI is not"
+          test -z "$(echo '{}' | PATH=/usr/bin:/bin sh scripts/beakr-hook stop)"
+          test -z "$(echo '{}' | PATH=/usr/bin:/bin sh scripts/beakr-hook session-end)"

@@ -1,0 +1,20 @@
+{
+  "name": "beakr",
+  "interface": {
+    "displayName": "Beakr"
+  },
+  "plugins": [
+    {
+      "name": "beakr",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

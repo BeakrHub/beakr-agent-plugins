@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "beakr",
+  "owner": {
+    "name": "Beakr",
+    "email": "hello@thebeakr.com"
+  },
+  "description": "Beakr for coding agents: the Beakr skill, MCP server and session hooks.",
+  "plugins": [
+    {
+      "name": "beakr",
+      "source": "./",
+      "description": "Research your organization's knowledge with citations, read and write the knowledge base, and start each session with Beakr context.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "tags": ["knowledge-base", "memory", "mcp"]
+    }
+  ]
+}

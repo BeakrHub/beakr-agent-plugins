@@ -1,0 +1,70 @@
+#!/bin/sh
+# Claude Code session hooks for the Beakr plugin. Usage: beakr-hook <event>
+#
+#   session-start  inject Beakr context (`beakr context ... --hook`)
+#   stop           capture the session so far (`beakr compound --hook`, throttled
+#                  per session by the CLI because Stop fires every turn)
+#   session-end    capture the final state (`--force` bypasses the throttle)
+#
+# These are the same commands `beakr hooks install` writes into settings.json
+# (beakr-cli src/beakr_cli/agent_hooks.py); keep the two in step. Capture only
+# uploads anything in a repository that opted in with `beakr hooks capture on`.
+#
+# A hook must never break the agent's session, so every failure path exits 0.
+# The hook's stdin (Claude Code's event JSON) is passed through untouched.
+
+event=${1:-}
+here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+
+case "$event" in
+    session-start) args="context --format claude_md --project auto --hook" ;;
+    stop) args="compound --hook --client claude-code --background" ;;
+    session-end) args="compound --hook --client claude-code --background --force" ;;
+    *)
+        echo "beakr-hook: unknown event '$event' (expected session-start, stop or session-end)" >&2
+        exit 0
+        ;;
+esac
+
+if ! beakr=$(sh "$here/find-beakr"); then
+    if [ "$event" = "session-start" ]; then
+        # SessionStart stdout becomes model context: say once, plainly, why
+        # Beakr is missing so the agent can tell the user instead of guessing.
+        cat <<'EOF'
+The Beakr plugin is installed but the `beakr` CLI is not, so Beakr's MCP tools, session context and session capture are unavailable. If the user asks about Beakr, tell them to install the CLI and sign in, then restart this session:
+  curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh
+  beakr auth login
+EOF
+    fi
+    exit 0
+fi
+
+# `beakr hooks install` may already have put the same hooks in the user's
+# settings; running both would inject the context twice and capture twice.
+settings="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"
+if [ -f "$settings" ] && grep -q -e ' context --format claude_md' -e ' compound --hook' "$settings"; then
+    exit 0
+fi
+
+if [ "$event" = "session-end" ]; then
+    # Claude Code gives SessionEnd hooks a short shared budget (about 1.5 s) and
+    # cancels what overruns it; the CLI's start-up alone can take that long.
+    # Hand the event to a detached process and return at once. The CLI's own
+    # --background then queues the capture as usual.
+    payload=$(mktemp "${TMPDIR:-/tmp}/beakr-session-end.XXXXXX") || exit 0
+    cat >"$payload"
+    # shellcheck disable=SC2086
+    ( "$beakr" $args <"$payload" >/dev/null 2>&1; rm -f "$payload" ) </dev/null >/dev/null 2>&1 &
+    exit 0
+fi
+
+# Word splitting of $args is intended: it is a fixed argument list above.
+# shellcheck disable=SC2086
+"$beakr" $args
+status=$?
+if [ "$status" -ne 0 ] && [ "$event" = "session-start" ]; then
+    # `--hook` never fails on a current CLI; a non-zero exit means the CLI
+    # predates the session hooks (0.4.0).
+    echo "Beakr session context is unavailable: the installed beakr CLI is too old for session hooks. Ask the user to run \`beakr update\`."
+fi
+exit 0

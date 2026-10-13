@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "beakr",
+  "version": "0.1.0",
+  "description": "Beakr, your team's organizational memory: research with citations and read and write the knowledge base from your agent.",
+  "author": {
+    "name": "Beakr",
+    "email": "hello@thebeakr.com",
+    "url": "https://thebeakr.com"
+  },
+  "homepage": "https://github.com/BeakrHub/beakr-agent-plugins",
+  "repository": "https://github.com/BeakrHub/beakr-agent-plugins",
+  "license": "Apache-2.0",
+  "keywords": ["beakr", "knowledge-base", "wiki", "mcp", "memory", "research"]
+}

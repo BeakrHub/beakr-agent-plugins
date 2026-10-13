@@ -1,0 +1,5 @@
+{
+  "variant": "local",
+  "remote_url": "https://api.thebeakr.com/mcp",
+  "remote_live": false
+}

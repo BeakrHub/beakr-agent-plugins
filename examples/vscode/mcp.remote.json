@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "beakr": {
+      "type": "http",
+      "url": "https://api.thebeakr.com/mcp"
+    }
+  }
+}
