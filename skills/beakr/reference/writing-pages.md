@@ -24,7 +24,7 @@ Use this workflow when the user wants to create or update a page. Every change g
 
 ## Adding to a project-map card
 
-A map card has a Description, a Facts table (`| Attribute | Value | When | Evidence |`), a Connections table (`| Relation | To | When | Evidence |`) and dated Findings. Nuance stays in the value's own words. Add to it one row at a time; each is merged into the live card, so never resend a whole table:
+A map card has a Description, a Facts table (`| Attribute | Value | When | Evidence |`), a Connections table (`| Relation | To | When | Evidence |`) and dated Findings. Nuance stays in the value's own words. Add to it one row at a time; each is merged into the live card, so never resend a whole table. Its Facts, Connections and Findings rows are protected: they change only through `add_fact`, `add_connection`, `add_finding`, `edit_rows` and `sort_table`, and an `edit_section`, `edit` or `find_replace` that would change a row is refused. `edit_rows` takes `table` `facts`, `connections` or `findings` (a finding is named by its `date` and `text`):
 
 ```
 knowledge_base_write(
@@ -36,7 +36,7 @@ knowledge_base_write(
     "value": "CLX-21 under SOP r7",
     "when": "2026-06-02",
     "evidence": "{{conversation:2026-10-06-clusters}}",
-    "citations": [{"key": "conversation:2026-10-06-clusters", "source_type": "conversation", "stance": "support", "meta": {"excerpt": "..."}}],
+    "citations": [{"key": "conversation:2026-10-06-clusters", "source_type": "conversation", "source_title": "Session on AMR clusters", "stance": "support", "meta": {"excerpt": "..."}}],
     "rationale": "Re-clustering under SOP r7 moved the isolate.",
   },
 )
@@ -101,15 +101,15 @@ Use `new` with `title`, `page_type`, `summary`, `parent`, `rationale`, and `sect
 `sections` is the page: an ordered list of `{title, body}` objects. **Beakr writes the `<!-- sec:ID -->` markers and section IDs for you** -- do not author markers and do not pass `content`.
 
 Each section can also carry:
-- `citations`: records for the inline tokens in its body (see below)
+- `citations`: records for the sources its body cites (see below)
 - `event_start`, `event_end`, `date_precision` (day, month, quarter, year, approx) for dated decisions, meetings, launches, incidents, and other timeline-worthy sections. `date_precision` is required whenever `event_start` is set.
 
 ## Citations
 
-Put an inline token immediately after every factual claim, table value, date, title, and relationship: `{{key}}`. Then give each token a citation record in that section's `citations`:
+Cite every factual claim, table value, date, title, and relationship inline, right after it:
 
-- **Re-citing a source Beakr already has:** use the `source_ref` from a `knowledge_base` read (`sources`, `provenance`, `cat`, `sections`) with the token key shown there, e.g. `{"key": "external_item:...-section-3", "source_ref": "beakr-source:v1:...", "stance": "support"}`.
-- **A source cited for the first time** (this conversation, a note): give a stable `key` with `source_type` `conversation`, `agent_note`, or `user_note`, a `source_title`, and `meta.excerpt` (or `meta.content` / `meta.text`).
+- **A source Beakr already has:** write the readable reference a `knowledge_base` read printed for it, in parentheses, as the read did: `The rate is 21 percent (tax-memo.txt › p. 7).`, `(#deals › message 2026-03-04 14:02 UTC)`, `(ENG-12)`, `(Page Title › Section)`. Beakr stores it as that citation; a reference to something you may not cite is refused (`citation_not_citeable`). You can also list it in `citations` as `{"reference": "memo.pdf › p. 7", "stance": "support"}` or with the `source_ref` from its Sources line.
+- **This conversation, or a note** (cited for the first time): put `{{conversation:<label>}}` after the claim and give it a record in that section's `citations` with the same `key`, `source_type` `conversation` (or `agent_note`, `user_note`), a `source_title`, and `meta.excerpt` (or `meta.content` / `meta.text`). The key must start with its own source type.
 
 Set `stance` to `support`, `qualifies`, or `contradicts`. It defaults to `support`, and that default is itself a claim about the evidence. A token with no citation record is stored as a bare pointer that can never be verified.
 
@@ -124,4 +124,4 @@ Set `stance` to `support`, `qualifies`, or `contradicts`. It defaults to `suppor
 
 ## After proposing
 
-Show the user what you staged with `show_proposal`. Call `accept_proposal` only when the user explicitly asks to apply that proposal. `knowledge_base` command `proposals` lists what is still pending; a proposed page does not exist in `ls`, `cat`, or search until accepted.
+Show the user what you staged with `show_proposal`, which prints its `content_hash`. Call `accept_proposal` only when the user explicitly asks to apply that proposal, with that hash as `reviewed_hash`: the accept then applies exactly what was shown, and a proposal that changed in between is refused (`proposal_changed`; show it again). Take the hash from the read the user reviewed, never from a fresh read made just before accepting. A proposal that changes a card's table rows is not accepted without it. `knowledge_base` command `proposals` lists what is still pending; a proposed page does not exist in `ls`, `cat`, or search until accepted.
