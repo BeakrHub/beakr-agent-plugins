@@ -52,10 +52,10 @@ You are not just a read interface. When the conversation produces something dura
 | Tool | When to use |
 |------|-------------|
 | `knowledge_base` | Every read over the wiki, chosen by `command`: `sections`, `grep`, `ls`, `cat`, `hover`, `links`, `references`, `timeline`, `rows` (every map card's Facts, Connections or Findings as one table), `provenance`, `blame`, `sources`, `log`, `diff`, `show`, `ontology`, `suggest_parent`, `diagnostics`, `completions`, `proposals`. |
-| `knowledge_base_write` | Every change, chosen by `action`: `edit_section`, `add_fact`, `add_connection`, `add_finding`, `edit_rows`, `new`, `edit`, `find_replace`, `mv`, `archive`, `merge`, `copy`, `page_type`. Always stages a proposal. On a project-map card use the three `add_*` actions to add one row or one dated finding, and `edit_rows` to change, merge or delete rows. |
-| `read_file` | The original document a citation points at. Pass the `path › place` from a Sources line (`deals/acme/memo.pdf › p. 7`), the whole `{{artifact:...}}` token, or the file id. It reads files and canvases only: for a connected item (Slack, email, calendar, Jira) use its excerpt and open its url. Long files come back in pieces (`offset`). |
+| `knowledge_base_write` | Every change, chosen by `action`: `edit_section`, `add_fact`, `add_connection`, `add_finding`, `edit_rows`, `new`, `edit`, `find_replace`, `mv`, `archive`, `merge`, `copy`, `page_type`. Always stages a proposal. On a project-map card use the three `add_*` actions to add one row or one dated finding, and `edit_rows` to change, merge or delete rows (Facts, Connections or Findings). A card's table rows change only through these actions: an `edit_section`, `edit` or `find_replace` that would change one is refused. |
+| `read_file` | The original document a citation points at. Pass the citation's readable reference (`memo.pdf › p. 7`), the `path › place` from a Sources line (`deals/acme/memo.pdf › p. 7`), or the file id. It reads files and canvases only: for a connected item (Slack, email, calendar, Jira) use its excerpt and open its url. Long files come back in pieces (`offset`). |
 | `research` | When your client exposes it: one cited answer across the knowledge base, documents and connected services (Slack, Gmail, Calendar, Jira...). |
-| `show_proposal` / `accept_proposal` / `dismiss_proposal` | Review a staged proposal; accept only when the user explicitly asks. |
+| `show_proposal` / `accept_proposal` / `dismiss_proposal` | Review a staged proposal; accept only when the user explicitly asks, passing the `content_hash` `show_proposal` printed as `reviewed_hash`. A proposal that changed since it was shown is refused; one that changes a card's table rows is not accepted without the hash. |
 | `list_projects` | Discover projects (including the personal one) to use as `scope`. |
 | `get_profile`, `wiki_stats`, `wiki_graph` | Org/project profile, counts, and the most-connected pages. |
 | `beakr_version` / `update_beakr` | Check for a newer Beakr release; update only when the user asks. |
@@ -73,15 +73,18 @@ There is no `search` command. Use `sections` (semantic, start here) or `grep` (l
 ## Reading evidence
 
 - **Start with `sections`.** Each hit shows the document passage (a verbatim excerpt) that supports it. Quote it directly; open the file only when the value you need is not in the excerpt.
-- **The knowledge base replaces a corpus grep.** For "every X", counts and superlatives use `ls` (by `page_type`) or `rows` (one table of every card's facts). Do not extract the documents and grep them; every document, its date and matter are already indexed.
+- **Three ways in, used together.** Walk the **graph** (a record's children are its documents; its links name its parties, instruments and filings), query the **database** (`rows`: every card's Facts, Connections or Findings as one table, with the page each row came from as `entity`), or read the **text** (`sections`, `grep`, `cat`). Do not extract the documents and grep them; every document, its date and matter are already indexed.
+- **Walk instead of searching again.** `hover {page}` and `cat {page, outline}` show a page's edges; `ls {parent}` lists its documents; `links {page, direction: out}` what it links to; `timeline {page}` its dated events.
+- **`rows` as a database.** Filter (`page_type`, `entity`, `to` for every connection involving a page, `attribute`, `query`, `regex: true` for patterns, dates, `current_only`), sort (`order_by` any column, `descending`) and aggregate (`group_by` entity, entity_type, year or a column: counts, sums, min, max). Filters match words, not meaning: `view: fields` lists the field names cards actually use, and `field_id` picks one.
+- **0 rows is not absence.** It means no scanned card states the fact under that name. Retry with the names the reply suggests or `view: fields`, then `sections` and the cited documents; never conclude a fact does not exist from an empty `rows`.
 - **Results stay under about 6k tokens.** When `next` appears, page with it rather than re-querying.
-- **Exact wording:** `sources {page}` lists every cited passage; `read_file` with a token, a file id or a path opens the original.
+- **Exact wording:** `sources {page}` lists every cited passage; `read_file` with a citation's reference, a file id or a path opens the original.
 
 ## Find, then verify in the file
 
-1. **Find** with the knowledge base (`sections`, `rows`, `cat`). Each Sources line names where a cited document lives and where each passage sits: `- deals/acme/memo.pdf: {{artifact:...}} › p. 7`.
+1. **Find** with the knowledge base (`sections`, `rows`, `cat`). Each citation reads as the document and the place in it, in parentheses: `Base rent is $48,000 per year (memo.pdf › p. 7).` Each Sources line names where a cited document lives, every place cited in it, its `read_file` id and its `source_ref`: `- deals/acme/memo.pdf › p. 7, p. 9 · read_file <id> · source_ref <ref>`.
 2. **Follow** that `path › place` with `read_file` (`deals/acme/memo.pdf › p. 7`, `book.xlsx › sheet 2, B4:D9`); it returns the text around that place. When the files are on your local disk, open the path there directly.
-3. **Verify** every decisive value (an amount, date, count, name) in the file before you rely on it. When the file and a card disagree, the file wins: say so, and cite the file's token.
+3. **Verify** every decisive value (an amount, date, count, name) in the file before you rely on it. When the file and a card disagree, the file wins: say so, and cite the file by its reference.
 - **Codex:** print only the result's text, and make one Knowledge call per exec cell.
 
 ## Quick decision tree
@@ -93,11 +96,20 @@ User asks a question about their org, a fact, a decision or a page
 User asks a broad question and research is available
   → research(query=...)
 
-User asks for every X, a count or a superlative
-  → knowledge_base ls {page_type} or rows {table: facts, ...}
+User asks for the most recent or largest X
+  → knowledge_base rows {table: facts, page_type, attribute, order_by: when (or value), descending: true}; cat the top few, then their children for the executed documents
+
+User asks for every X involving a party, client or instrument
+  → knowledge_base rows {table: connections, to: <page>} or links {page, page_type, relation}
+
+User asks how many X, or for counts per group
+  → knowledge_base ls {page_type} (the whole population, paged), then check each; rows {..., group_by} for counts and totals per group
+
+User asks everything about one record
+  → knowledge_base hover {page}, ls {parent: <page>}, links {page, direction: out}, timeline {page}
 
 User needs the exact wording or a value the excerpt lacks
-  → read_file {path: "<path> › <place>"} from the Sources line (or the {{token}})
+  → read_file {path: "<path> › <place>"} from the Sources line (or the citation's reference)
 
 User wants an exact name, ID, or phrase
   → knowledge_base grep {query}
@@ -114,6 +126,9 @@ User wants to verify sources for a claim
 User wants to create/update a page
   → See [reference/writing-pages.md](reference/writing-pages.md)
 
+You established something the organization will want again (after a cited answer)
+  → propose it: add_fact {page, attribute, value, evidence} for a sourced value (reuse the attribute names rows view: fields lists); add_connection {page, relation, to, evidence} on the more specific card; add_finding {page, date, kind, text, evidence} for your conclusion. An out-of-date value gets a newer dated row, not a deletion.
+
 User wants to audit knowledge base quality
   → See [reference/auditing.md](reference/auditing.md)
 ```
@@ -127,13 +142,13 @@ User wants to audit knowledge base quality
 ## Citing sources
 
 Always cite sources when presenting information from the knowledge base:
-- To people, cite inline with the readable reference a result prints (`tax-memo.docx › p. 7`, `#deals › message 2026-03-04 14:02 UTC`), linked when it has a url, or research's `[n]`
-- In writes, cite with the `{{token}}`, a read's `source_ref` or that readable reference, and only this conversation (`conversation` with `meta.excerpt`), files the user uploaded, or sources Knowledge already cites; anything else is refused `citation_not_citeable`
+- Cite with the readable reference a result prints, in parentheses: `(tax-memo.docx › p. 7)`, `(#deals › message 2026-03-04 14:02 UTC)`, `(ENG-12)`, `(Page Title › Section)`; to people, link it when it has a url
+- In writes, cite with that readable reference as `reference` (or a read's `source_ref`), and only this conversation (`conversation` with `meta.excerpt`), files the user uploaded, or sources Knowledge already cites; anything else is refused `citation_not_citeable`
 - Include the page title so the user can find it
-- For `research` results, the response includes numbered citations with their `{{token}}` keys -- present them
+- `research` answers cite the same way, with a Sources list per document -- keep the references when you present them
 - An excerpt marked `(paraphrase)`, `(human asserted)`, or `(unverified)` is not a checked quote; open the source before relying on it
 - For claims that need verification, use `provenance` to show supporting/contradicting sources
-- When writing pages, see [reference/writing-pages.md](reference/writing-pages.md) for inline tokens and citation records
+- When writing pages, see [reference/writing-pages.md](reference/writing-pages.md) for citation records
 
 ## Page references
 
