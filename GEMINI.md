@@ -4,6 +4,7 @@ The `beakr` MCP server connects you to the user's Beakr workspace: their team's 
 
 - Use `research` for questions about the user's organization, team, projects, people or past decisions, and cite what it returns.
 - Use `knowledge_base` (`sections`, `grep`, `cat`) to find and read pages; `knowledge_base_write` stages proposals and never edits directly.
+- Read four ways, combined as the task needs: the file system (`ls`, `cat`, `grep`), the graph (`links`, `hover`, `timeline`), the database (`rows`: every map card's Facts, Connections and Findings as one table, for every, how many, latest, largest and as-of questions; `match` sets how a field name is found: `exact`, `similar` or `meaning`) and meaning (`sections`). An empty `rows` result is not proof a fact is absent.
 - A map card's Facts, Connections and Findings change only through row actions (`add_fact`, `add_connection`, `add_finding`, `edit_rows`); an edit that rewrites a row as text is refused.
 - To apply a proposal the user asked for, read it with `show_proposal`, then call `accept_proposal` with the `content_hash` it printed as `reviewed_hash`. A proposal that changed since it was shown is refused.
 - The `beakr` skill has the full procedure for searching, writing and auditing pages. Activate it before writing to the knowledge base.
