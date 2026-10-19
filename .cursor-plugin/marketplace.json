@@ -12,7 +12,7 @@
       "name": "beakr",
       "source": "./",
       "description": "Research your organization's knowledge with citations and read and write the knowledge base.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "productivity"
     }
   ]
