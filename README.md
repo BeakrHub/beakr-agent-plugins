@@ -38,7 +38,7 @@ From a terminal: `claude plugin marketplace add BeakrHub/beakr-agent-plugins && 
 What it installs:
 
 - **The `beakr` skill**: how to search, research, write and audit the knowledge base, and when to propose capturing something durable.
-- **The `beakr` MCP server** (`beakr mcp`): `research`, `knowledge_base`, `knowledge_base_write`, `list_projects` and the rest of Beakr's tools.
+- **The `beakr` MCP server** (`beakr mcp`): `research`, `knowledge_base`, `knowledge_base_write`, `list_projects` and the rest of Beakr's tools, all listed from the start (see [MCP server settings](#mcp-server-settings)).
 - **Slash commands**: `/beakr:kb-search`, `/beakr:kb-research`, `/beakr:kb-write`, `/beakr:kb-audit`, and `/beakr:setup`.
 - **Session hooks**, the same ones `beakr hooks install` writes into `settings.json`:
   - `SessionStart` runs `beakr context --format claude_md --project auto --hook`, which adds your Beakr context (profile, recent activity, relevant memories and skills) to the session.
@@ -109,6 +109,14 @@ Claude.ai custom connectors and ChatGPT connectors can only reach a remote MCP s
 
 <!-- generated:install-links:end -->
 
+## MCP server settings
+
+Needs beakr-cli 0.4.0 or later (`beakr update`). Set these in the environment your agent starts from, or in the `env` of the `beakr` MCP entry:
+
+- **Tool listing.** The server lists every Beakr tool, because Claude Code calls only the tools a server lists. `BEAKR_MCP_TOOLS=eager` lists a smaller set plus `discover_tools`, which adds the tools it finds to the listing.
+- **Write attribution.** Every Knowledge write the server makes records the agent that made it: the client's own name and version (`claude-code/2.1.283`, `codex-mcp-client/0.40.0`), shown on proposals as "filed by Dana Reyes via claude-code/2.1". When several agents share one API key, give each MCP entry its own `BEAKR_AGENT` label (`"env": {"BEAKR_AGENT": "reviewer"}`); it overrides the client's name.
+- **Self-hosted Beakr.** On an installation that leaves out hosted features (integrations, skills, organization administration), the server does not list their tools, and `beakr doctor` names the missing areas.
+
 ## Local or hosted MCP server
 
 The plugins ship the **local** server (`beakr mcp` over stdio). Beakr's hosted MCP server (streamable HTTP with OAuth, so no CLI needed) is not live in production yet. One switch moves every plugin over when it is:
@@ -128,6 +136,8 @@ The hooks keep needing the CLI either way; with the hosted server and no CLI the
 | Cursor, VS Code or Claude Desktop launched from the Dock cannot find `beakr` | GUI apps may not inherit your shell's PATH. The plugins' launcher also checks `~/.local/bin`, `/opt/homebrew/bin` and `/usr/local/bin`; for hand-written configs, use the full path from `which beakr` as the command. |
 | No Beakr context at session start | Check `beakr doctor`. The context comes from the project bound to the repository (`beakr init`), or your default project. On beakr-cli older than 0.4.0, the session starts with a note asking you to run `beakr update`. |
 | Sessions are not captured | Capture is opt-in per repository: `beakr hooks capture status`, then `beakr hooks capture on`. Headless runs (`claude -p`) are captured but never teach personal learning. |
+| A captured session is still compounding and should stop | `beakr conversations ls`, then `beakr conversations compound cancel ID`. Proposals it already filed stay; `beakr compound ID` resumes it. |
+| Only a few Beakr tools are listed | `BEAKR_MCP_TOOLS=eager` is set; unset it, or call `discover_tools`. On a self-hosted installation, `beakr doctor` lists the areas it does not provide. |
 | `beakr doctor` says MCP "not registered" and hooks "not installed" | Expected: it checks only what `beakr setup` and `beakr hooks install` registered, not what a plugin provides. |
 | Context appears twice | You installed the hooks with `beakr hooks install` as well. The plugin stands down when it sees them in `~/.claude/settings.json`; if you keep your settings elsewhere, run `beakr hooks uninstall`. |
 | Windows | The launcher and hooks are POSIX shell scripts. On Windows, register the server by hand (`claude mcp add beakr -- beakr mcp`, `codex mcp add beakr -- beakr mcp`) and use `beakr hooks install` for hooks. |

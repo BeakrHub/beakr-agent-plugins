@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "beakr",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Beakr, your team's organizational memory: research with citations, read and write the knowledge base, and start each session with Beakr context.",
   "author": {
     "name": "Beakr",
