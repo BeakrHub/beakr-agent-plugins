@@ -115,7 +115,8 @@ Needs beakr-cli 0.4.0 or later (`beakr update`). Set these in the environment yo
 
 - **Tool listing.** The server lists every Beakr tool, because Claude Code calls only the tools a server lists. `BEAKR_MCP_TOOLS=eager` lists a smaller set plus `discover_tools`, which adds the tools it finds to the listing.
 - **Write attribution.** Every Knowledge write the server makes records the agent that made it: the client's own name and version (`claude-code/2.1.283`, `codex-mcp-client/0.40.0`), shown on proposals as "filed by Dana Reyes via claude-code/2.1". When several agents share one API key, give each MCP entry its own `BEAKR_AGENT` label (`"env": {"BEAKR_AGENT": "reviewer"}`); it overrides the client's name.
-- **Self-hosted Beakr.** On an installation that leaves out hosted features (integrations, skills, organization administration), the server does not list their tools, and `beakr doctor` names the missing areas.
+- **Self-hosted Beakr.** On an installation that leaves out hosted features (integrations, skills, organization administration), the server does not list their tools (`skills` and `org_audit_log`, for example), and `beakr doctor` names the missing areas. When the CLI came with the installation, `beakr_version` says so and `update_beakr` does not run: the installation upgrades it.
+- **Update checks.** `BEAKR_NO_UPDATE_CHECK=1` stops the CLI asking PyPI for a newer release; `beakr_version` and `update_beakr` then say update checks are off.
 
 ## Local or hosted MCP server
 
@@ -137,6 +138,9 @@ The hooks keep needing the CLI either way; with the hosted server and no CLI the
 | No Beakr context at session start | Check `beakr doctor`. The context comes from the project bound to the repository (`beakr init`), or your default project. On beakr-cli older than 0.4.0, the session starts with a note asking you to run `beakr update`. |
 | Sessions are not captured | Capture is opt-in per repository: `beakr hooks capture status`, then `beakr hooks capture on`. Headless runs (`claude -p`) are captured but never teach personal learning. |
 | A captured session is still compounding and should stop | `beakr conversations ls`, then `beakr conversations compound cancel ID`. Proposals it already filed stay; `beakr compound ID` resumes it. |
+| `accept_proposal` is refused with `person_review_required` | The organization or project requires a person to accept what agents write. The user accepts it in Beakr; `beakr kb agent-review show -P <project>` says which policy is in force and where it comes from. |
+| A `scope` is refused with `scope_not_found` or `scope_ambiguous`, or a `project` with `project_id must be a valid UUID` | No single project you can read has that name; a `scope` refusal names the closest. Pass the id `list_projects` prints: every Beakr server takes it. The local `beakr mcp` server also takes a name for any `project`; the hosted server takes a name on `documents` and `read_file`, but `research`, `wiki_stats` and `wiki_graph` there need the id. |
+| Some files never reach Knowledge | `beakr projects status -P <project>` names the files that failed and `beakr projects retry -P <project>` resends them. `beakr projects refusals <project>` shows, by file, where models refused or fell back. |
 | Only a few Beakr tools are listed | `BEAKR_MCP_TOOLS=eager` is set; unset it, or call `discover_tools`. On a self-hosted installation, `beakr doctor` lists the areas it does not provide. |
 | `beakr doctor` says MCP "not registered" and hooks "not installed" | Expected: it checks only what `beakr setup` and `beakr hooks install` registered, not what a plugin provides. |
 | Context appears twice | You installed the hooks with `beakr hooks install` as well. The plugin stands down when it sees them in `~/.claude/settings.json`; if you keep your settings elsewhere, run `beakr hooks uninstall`. |
