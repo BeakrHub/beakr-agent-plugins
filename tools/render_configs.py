@@ -136,11 +136,13 @@ def codex_config(remote_url: str | None) -> str:
         "# (`beakr auth login`, or BEAKR_API_KEY passed through env_vars below).\n"
         "# If Codex cannot find `beakr`, replace it with the output of `which beakr`.\n"
         "# Writes are attributed to Codex automatically; BEAKR_AGENT overrides that\n"
-        "# label, and BEAKR_MCP_TOOLS=eager lists fewer tools (see the README).\n"
+        "# label, BEAKR_MCP_TOOLS=eager lists fewer tools and BEAKR_NO_UPDATE_CHECK=1\n"
+        "# stops the update check (see the README).\n"
         f"[mcp_servers.{SERVER_NAME}]\n"
         f'command = "{LOCAL_COMMAND}"\n'
         f"args = {json.dumps(LOCAL_ARGS)}\n"
-        'env_vars = ["BEAKR_API_KEY", "BEAKR_API_URL", "BEAKR_AGENT", "BEAKR_MCP_TOOLS"]\n'
+        'env_vars = ["BEAKR_API_KEY", "BEAKR_API_URL", "BEAKR_AGENT", "BEAKR_MCP_TOOLS",\n'
+        '  "BEAKR_NO_UPDATE_CHECK"]\n'
     )
 
 
