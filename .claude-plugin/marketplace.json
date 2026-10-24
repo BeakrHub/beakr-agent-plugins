@@ -11,7 +11,7 @@
       "name": "beakr",
       "source": "./",
       "description": "Research your organization's knowledge with citations, read and write the knowledge base, and start each session with Beakr context.",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "category": "productivity",
       "tags": ["knowledge-base", "memory", "mcp"]
     }

@@ -16,7 +16,7 @@ Check whether the Beakr plugin can work here, then tell the user exactly what, i
    - `version`, `api` and `auth` must be `ok`. If `auth` fails, the user runs `beakr auth login`, or sets `BEAKR_API_KEY` in the environment the agent starts from.
    - `project` with `warn` means this directory is not bound to a Beakr project. Say what binding gives them: session context and capture scoped to that project. They bind with `beakr init`.
    - Ignore `mcp` and `hooks` warnings that say "not registered" or "not installed". This plugin provides both, and `beakr doctor` only looks at its own `beakr setup` and `beakr hooks install` registrations.
-   - On a self-hosted installation, `beakr doctor` lists the areas it does not provide (for example integrations or skills). Their tools are not listed; that is expected, not a fault.
+   - On a self-hosted installation, `beakr doctor` lists the areas it does not provide (for example integrations, skills or organization administration). Their tools, such as `skills` and `org_audit_log`, are not listed; that is expected, not a fault.
 
 3. Check whether the Beakr MCP tools (`research`, `knowledge_base`, `knowledge_base_write`, `show_proposal`, `list_projects`) are available in this session. The server lists every tool, so if only a few appear with `discover_tools`, `BEAKR_MCP_TOOLS=eager` is set in the environment; that is the user's choice. If the CLI is fine but the tools are missing, the session started before the CLI was installed or signed in; the user restarts the session or runs `/mcp` to reconnect `beakr`.
 

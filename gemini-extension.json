@@ -1,6 +1,6 @@
 {
   "name": "beakr",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Beakr, your team's organizational memory: research with citations and read and write the knowledge base from your agent.",
   "mcpServers": {
     "beakr": {
