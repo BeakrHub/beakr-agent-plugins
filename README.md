@@ -9,7 +9,7 @@ Install Beakr into your coding agent in one step. Beakr is your team's organizat
 | Cursor | skill, MCP server | [plugin or one-click MCP](#cursor) |
 | VS Code (Copilot) | skill, MCP server | [plugin or MCP config](#vs-code) |
 | Gemini CLI | skill, MCP server, context file | [extension](#gemini-cli) |
-| Claude.ai, Claude Desktop, ChatGPT | MCP server | [hosted connector](#claudeai-claude-desktop-and-chatgpt) (not live yet) |
+| Claude.ai, Cowork, Claude Desktop, ChatGPT | MCP server | [hosted connector](#claudeai-cowork-claude-desktop-and-chatgpt) (not live yet) |
 
 ## Before you install
 
@@ -20,7 +20,14 @@ curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh 
 beakr auth login
 ```
 
-The installer puts `beakr` in `~/.local/bin` via `uv tool install beakr-cli`; `pipx install beakr-cli` works too. Instead of `beakr auth login` you can set `BEAKR_API_KEY` (and `BEAKR_API_URL` for a non-production instance) in the environment your agent starts from. Session hooks need beakr-cli 0.4.0 or later (`beakr update`).
+The installer installs [`uv`](https://github.com/astral-sh/uv) if needed and puts `beakr` in `~/.local/bin`. It installs the CLI from GitHub (`uv tool install git+https://github.com/BeakrHub/beakr-cli`), not from PyPI: PyPI still has 0.3.3, and the session hooks and current MCP tools need 0.4.0 or later. If you installed from PyPI before, run the installer again to replace it.
+
+**Signing in.** Use one of these; the local MCP server, the hooks and the Beakr SDKs all pick up whichever you choose:
+
+- **`beakr auth login`**: a browser sign-in with your Beakr account, through your organization's single sign-on when it has one. Best for a person on their own computer: there is no key to create, store or rotate, and the sign-in renews itself.
+- **An API key**, created in Beakr under Settings: save it with `beakr auth login --api-key`, or set `BEAKR_API_KEY` (and `BEAKR_API_URL` for a non-production instance) in the environment your agent starts from. Use a key for automation, CI and servers, or when you want access narrowed to some scopes or projects.
+
+If more than one `beakr` is installed (for example a self-hosted installation's own client next to this one), set `BEAKR_BIN` to the one the plugin should run; the TypeScript SDK reads `BEAKR_CLI_PATH` for the same purpose.
 
 Without the CLI the plugins still install, but the Beakr tools stay unavailable: the MCP server exits with install instructions and the hooks do nothing.
 
@@ -81,9 +88,28 @@ gemini extensions install https://github.com/BeakrHub/beakr-agent-plugins
 
 This installs the `beakr` skill, the `beakr` MCP server and a short `GEMINI.md` context file. Gemini CLI does not pass your shell's environment variables to extensions, so sign in with `beakr auth login` rather than relying on `BEAKR_API_KEY`.
 
-## Claude.ai, Claude Desktop and ChatGPT
+## Claude.ai, Cowork, Claude Desktop and ChatGPT
 
-Claude.ai custom connectors and ChatGPT connectors can only reach a remote MCP server over HTTPS with OAuth; they cannot run `beakr mcp` on your machine. They will work once Beakr's hosted MCP server is live, by adding its URL as a custom connector. Until then, Claude Desktop can use the local server: add the `beakr` entry from [`examples/cursor/mcp.json`](examples/cursor/mcp.json) to `claude_desktop_config.json`, with the full path from `which beakr` as the command.
+**Not live in production yet.** Once it is, the hosted server's address is `https://api.thebeakr.com/mcp`.
+
+Claude.ai, Cowork and ChatGPT run in the cloud, so they cannot start `beakr mcp` on your computer; they can only connect to a URL. Beakr's hosted MCP server offers the same tools at that URL. You connect it once and sign in with your Beakr account, through your organization's single sign-on when it has one, and approve the connection. Nothing to install, and no key to paste.
+
+**Claude.ai** (and from there, Cowork):
+
+1. Settings > Connectors > **Add custom connector**. On a Team or Enterprise plan, an owner may need to allow custom connectors first.
+2. Name it `Beakr` and enter `https://api.thebeakr.com/mcp` as the server URL. Leave the advanced OAuth client ID and secret empty: Claude identifies itself to Beakr's sign-in on its own.
+3. **Connect**, sign in to Beakr, and **Allow**.
+4. In a chat, turn Beakr on from the tools menu. Connectors added on claude.ai are available in Cowork in the Claude desktop app.
+
+**ChatGPT**:
+
+1. Plugins > **Add** > **Add custom MCP server**.
+2. Name it `Beakr`, enter `https://api.thebeakr.com/mcp` as the server URL, and choose **OAuth** authentication. Under advanced OAuth settings, pick the Client ID Metadata Document (CIMD) client setup and the scopes `openid profile email offline_access` if they are not filled in already.
+3. Create it, sign in to Beakr, and allow the connection.
+
+What the connector can do is what you can do in Beakr: it sees only your organizations and projects, writes go through Knowledge proposals, and actions such as creating keys or deleting projects stay in the Beakr app.
+
+Until the hosted server is live, Claude Desktop can use the local server: add the `beakr` entry from [`examples/cursor/mcp.json`](examples/cursor/mcp.json) to `claude_desktop_config.json`, with the full path from `which beakr` as the command.
 
 ## One-click links and commands
 
@@ -111,7 +137,7 @@ Claude.ai custom connectors and ChatGPT connectors can only reach a remote MCP s
 
 ## MCP server settings
 
-Needs beakr-cli 0.4.0 or later (`beakr update`). Set these in the environment your agent starts from, or in the `env` of the `beakr` MCP entry:
+Needs beakr-cli 0.4.0 or later (run the installer above to get it). Set these in the environment your agent starts from, or in the `env` of the `beakr` MCP entry:
 
 - **Tool listing.** The server lists every Beakr tool, because Claude Code calls only the tools a server lists. `BEAKR_MCP_TOOLS=eager` lists a smaller set plus `discover_tools`, which adds the tools it finds to the listing.
 - **Write attribution.** Every Knowledge write the server makes records the agent that made it: the client's own name and version (`claude-code/2.1.283`, `codex-mcp-client/0.40.0`), shown on proposals as "filed by Dana Reyes via claude-code/2.1". When several agents share one API key, give each MCP entry its own `BEAKR_AGENT` label (`"env": {"BEAKR_AGENT": "reviewer"}`); it overrides the client's name.
@@ -132,10 +158,11 @@ The hooks keep needing the CLI either way; with the hosted server and no CLI the
 
 | Symptom | Fix |
 |---|---|
+| The plugin runs a different `beakr` than the one you signed in with | `which -a beakr` lists every copy; the plugin runs the first. Set `BEAKR_BIN` to the full path of the one you want in the environment your agent starts from. |
 | Beakr tools missing; the MCP server shows as failed (`/mcp` in Claude Code, `codex mcp list`) | The CLI is not installed or not on the agent's PATH. Install it (above). If it lives somewhere unusual, set `BEAKR_BIN` to its full path in the environment your agent starts from. |
 | The server connects but tool calls fail with an auth error | Run `beakr auth login`, or check `BEAKR_API_KEY`. `beakr doctor` shows what the CLI can reach. |
 | Cursor, VS Code or Claude Desktop launched from the Dock cannot find `beakr` | GUI apps may not inherit your shell's PATH. The plugins' launcher also checks `~/.local/bin`, `/opt/homebrew/bin` and `/usr/local/bin`; for hand-written configs, use the full path from `which beakr` as the command. |
-| No Beakr context at session start | Check `beakr doctor`. The context comes from the project bound to the repository (`beakr init`), or your default project. On beakr-cli older than 0.4.0, the session starts with a note asking you to run `beakr update`. |
+| No Beakr context at session start | Check `beakr doctor`. The context comes from the project bound to the repository (`beakr init`), or your default project. On beakr-cli older than 0.4.0 (for example a PyPI install), the session starts with a note asking you to reinstall the CLI with the installer above. |
 | Sessions are not captured | Capture is opt-in per repository: `beakr hooks capture status`, then `beakr hooks capture on`. Headless runs (`claude -p`) are captured but never teach personal learning. |
 | A captured session is still compounding and should stop | `beakr conversations ls`, then `beakr conversations compound cancel ID`. Proposals it already filed stay; `beakr compound ID` resumes it. |
 | `accept_proposal` is refused with `person_review_required` | The organization or project requires a person to accept what agents write. The user accepts it in Beakr; `beakr kb agent-review show -P <project>` says which policy is in force and where it comes from. |
