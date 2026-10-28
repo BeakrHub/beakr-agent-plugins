@@ -11,4 +11,4 @@ The `beakr` MCP server connects you to the user's Beakr workspace: their team's 
 - Every Beakr tool is listed from the start; call the one you need directly.
 - The `beakr` skill has the full procedure for searching, writing and auditing pages. Activate it before writing to the knowledge base.
 
-If the Beakr tools are missing, the `beakr` CLI is not installed or not signed in. Tell the user to run `curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh` and then `beakr auth login`, and restart Gemini CLI.
+If the Beakr tools are missing, the `beakr` CLI is not installed or not signed in. Tell the user to run `curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh -s -- --no-auth --no-mcp --no-skills --no-hooks` and then `beakr auth login`, and restart Gemini CLI.
