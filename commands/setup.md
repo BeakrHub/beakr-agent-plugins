@@ -7,7 +7,7 @@ Check whether the Beakr plugin can work here, then tell the user exactly what, i
 1. Find the CLI by running `"${CLAUDE_PLUGIN_ROOT}/scripts/find-beakr"`. It prints the path of the `beakr` binary, or exits 1 when there is none.
    - If there is none, stop and give the user these steps. Do not run them yourself: they install software and open a browser sign-in.
      ```
-     curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh
+     curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh -s -- --no-auth --no-mcp --no-skills --no-hooks
      beakr auth login
      ```
      Then they restart this session so the Beakr MCP server starts.

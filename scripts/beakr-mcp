@@ -11,7 +11,7 @@ if ! beakr=$(sh "$here/find-beakr"); then
     cat >&2 <<'EOF'
 Beakr MCP server: the `beakr` CLI is not installed, so Beakr's tools are unavailable.
 Install it, sign in, then restart your agent:
-  curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh
+  curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh -s -- --no-auth --no-mcp --no-skills --no-hooks
   beakr auth login
 (Or set BEAKR_BIN to the path of an existing `beakr` binary.)
 EOF

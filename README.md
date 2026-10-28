@@ -13,12 +13,14 @@ Install Beakr into your coding agent in one step. Beakr is your team's organizat
 
 ## Before you install
 
-Every plugin talks to Beakr through the `beakr` CLI's local MCP server (`beakr mcp`). Install the CLI and sign in once:
+Every plugin talks to Beakr through the `beakr` CLI's local MCP server (`beakr mcp`). Install the CLI and sign in once. The flags keep the installer from wiring Beakr into your agents itself; the plugin does that:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/BeakrHub/beakr-cli/main/install.sh | sh -s -- --no-auth --no-mcp --no-skills --no-hooks
 beakr auth login
 ```
+
+**Use a plugin or `beakr setup`, not both.** Run with no flags, the installer runs `beakr setup`, which registers the same `beakr` MCP server, skill, `kb-*` commands and session hooks directly in Claude Code and Codex. A plugin installed on top of that gives your agent every Beakr tool, the skill and the commands twice. If you already ran the full installer or `beakr setup`, remove what it wired before installing a plugin with `beakr setup --uninstall` (your sign-in stays). For Claude Code and Codex alone, `beakr setup` without a plugin is enough; the plugins add Cursor, VS Code and Gemini CLI, the `/beakr:setup` check, and updates through each client's plugin manager.
 
 The installer installs [`uv`](https://github.com/astral-sh/uv) if needed and puts `beakr` in `~/.local/bin`. It installs the CLI from GitHub (`uv tool install git+https://github.com/BeakrHub/beakr-cli`), not from PyPI: PyPI still has 0.3.3, and the session hooks and current MCP tools need 0.4.0 or later. If you installed from PyPI before, run the installer again to replace it.
 
@@ -170,6 +172,7 @@ The hooks keep needing the CLI either way; with the hosted server and no CLI the
 | Some files never reach Knowledge | `beakr projects status -P <project>` names the files that failed and `beakr projects retry -P <project>` resends them. `beakr projects refusals <project>` shows, by file, where models refused or fell back. |
 | Only a few Beakr tools are listed | `BEAKR_MCP_TOOLS=eager` is set; unset it, or call `discover_tools`. On a self-hosted installation, `beakr doctor` lists the areas it does not provide. |
 | `beakr doctor` says MCP "not registered" and hooks "not installed" | Expected: it checks only what `beakr setup` and `beakr hooks install` registered, not what a plugin provides. |
+| Every Beakr tool, the skill or the `kb-*` commands appear twice | `beakr setup` (or the installer run without flags) registered them as well as the plugin. Keep the plugin and run `beakr setup --uninstall`, which removes setup's MCP server, skill, commands and hooks and keeps your sign-in. |
 | Context appears twice | You installed the hooks with `beakr hooks install` as well. The plugin stands down when it sees them in `~/.claude/settings.json`; if you keep your settings elsewhere, run `beakr hooks uninstall`. |
 | Windows | The launcher and hooks are POSIX shell scripts. On Windows, register the server by hand (`claude mcp add beakr -- beakr mcp`, `codex mcp add beakr -- beakr mcp`) and use `beakr hooks install` for hooks. |
 
