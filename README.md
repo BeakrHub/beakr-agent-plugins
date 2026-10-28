@@ -33,8 +33,6 @@ If more than one `beakr` is installed (for example a self-hosted installation's 
 
 Without the CLI the plugins still install, but the Beakr tools stay unavailable: the MCP server exits with install instructions and the hooks do nothing.
 
-> This repository is private for now. Installing from `BeakrHub/beakr-agent-plugins` needs GitHub access to it (your git credentials or `gh auth login`); see [Publishing](#publishing).
-
 ## Claude Code
 
 ```text
@@ -219,10 +217,9 @@ The version lives in `plugin.json`, `.claude-plugin/plugin.json`, the three mark
 
 ### Publishing
 
-Nothing is submitted to any marketplace. To let people install it:
+This repository is public, and it is its own marketplace: every install command above reads it from GitHub, so a tagged release reaches users through their client's plugin manager.
 
-1. Make this repository public (or grant access to the people who should install it). Every install command above reads it from GitHub.
-2. Optionally submit to the public directories: the Claude Code plugin directory, OpenAI's Codex plugin directory, Cursor's marketplace and the Gemini CLI extensions gallery. Each has its own review.
+Nothing is submitted to the public directories yet (the Claude Code plugin directory, OpenAI's Codex plugin directory, Cursor's marketplace and the Gemini CLI extensions gallery). Each has its own review.
 
 ## License
 
