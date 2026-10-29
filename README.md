@@ -27,7 +27,7 @@ The installer installs [`uv`](https://github.com/astral-sh/uv) if needed and put
 **Signing in.** Use one of these; the local MCP server, the hooks and the Beakr SDKs all pick up whichever you choose:
 
 - **`beakr auth login`**: a browser sign-in with your Beakr account, through your organization's single sign-on when it has one. Best for a person on their own computer: there is no key to create, store or rotate, and the sign-in renews itself.
-- **An API key**, created in Beakr under Settings: save it with `beakr auth login --api-key`, or set `BEAKR_API_KEY` (and `BEAKR_API_URL` for a non-production instance) in the environment your agent starts from. Use a key for automation, CI and servers, or when you want access narrowed to some scopes or projects.
+- **An API key**, created in Beakr under Settings: save it with `beakr auth login --with-api-key`, which asks for the key without showing it (or reads it from a pipe: `echo "$BEAKR_KEY" | beakr auth login --with-api-key`), or set `BEAKR_API_KEY` (and `BEAKR_BASE_URL` for a non-production instance) in the environment your agent starts from. Never put the key itself on the command line: it stays in your shell history. Use a key for automation, CI and servers, or when you want access narrowed to some scopes or projects.
 
 If more than one `beakr` is installed (for example a self-hosted installation's own client next to this one), set `BEAKR_BIN` to the one the plugin should run; the TypeScript SDK reads `BEAKR_CLI_PATH` for the same purpose.
 
