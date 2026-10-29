@@ -7,5 +7,5 @@
 [mcp_servers.beakr]
 command = "beakr"
 args = ["mcp"]
-env_vars = ["BEAKR_API_KEY", "BEAKR_API_URL", "BEAKR_AGENT", "BEAKR_MCP_TOOLS",
-  "BEAKR_NO_UPDATE_CHECK"]
+env_vars = ["BEAKR_API_KEY", "BEAKR_BASE_URL", "BEAKR_API_URL", "BEAKR_AGENT",
+  "BEAKR_MCP_TOOLS", "BEAKR_NO_UPDATE_CHECK"]

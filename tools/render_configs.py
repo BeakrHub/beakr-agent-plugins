@@ -141,8 +141,10 @@ def codex_config(remote_url: str | None) -> str:
         f"[mcp_servers.{SERVER_NAME}]\n"
         f'command = "{LOCAL_COMMAND}"\n'
         f"args = {json.dumps(LOCAL_ARGS)}\n"
-        'env_vars = ["BEAKR_API_KEY", "BEAKR_API_URL", "BEAKR_AGENT", "BEAKR_MCP_TOOLS",\n'
-        '  "BEAKR_NO_UPDATE_CHECK"]\n'
+        # BEAKR_BASE_URL is the documented name for the API; the CLI reads
+        # BEAKR_API_URL after it, so both pass through.
+        'env_vars = ["BEAKR_API_KEY", "BEAKR_BASE_URL", "BEAKR_API_URL", "BEAKR_AGENT",\n'
+        '  "BEAKR_MCP_TOOLS", "BEAKR_NO_UPDATE_CHECK"]\n'
     )
 
 
