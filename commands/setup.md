@@ -13,7 +13,7 @@ Check whether the Beakr plugin can work here, then tell the user exactly what, i
      Then they restart this session so the Beakr MCP server starts.
 
 2. Run `<that path> doctor --json` and read its checks.
-   - `version`, `api` and `auth` must be `ok`. If `version` reports a CLI older than 0.4.0 (often a PyPI install), the user reinstalls it with the install command above; `beakr update` alone does not move a PyPI install to 0.4.0.
+   - `version`, `api` and `auth` must be `ok`. If `version` reports a CLI older than 0.4.0, the user runs `beakr update`; if it says it cannot upgrade automatically, they reinstall with the install command above.
    - If `auth` fails, the user runs `beakr auth login`, or sets `BEAKR_API_KEY` in the environment the agent starts from.
    - `project` with `warn` means this directory is not bound to a Beakr project. Say what binding gives them: session context and capture scoped to that project. They bind with `beakr init`.
    - Ignore `mcp` and `hooks` warnings that say "not registered" or "not installed". This plugin provides both, and `beakr doctor` only looks at its own `beakr setup` and `beakr hooks install` registrations.

@@ -22,7 +22,7 @@ beakr auth login
 
 **Use a plugin or `beakr setup`, not both.** Run with no flags, the installer runs `beakr setup`, which registers the same `beakr` MCP server, skill, `kb-*` commands and session hooks directly in Claude Code and Codex. A plugin installed on top of that gives your agent every Beakr tool, the skill and the commands twice. If you already ran the full installer or `beakr setup`, remove what it wired before installing a plugin with `beakr setup --uninstall` (your sign-in stays). For Claude Code and Codex alone, `beakr setup` without a plugin is enough; the plugins add Cursor, VS Code and Gemini CLI, the `/beakr:setup` check, and updates through each client's plugin manager.
 
-The installer installs [`uv`](https://github.com/astral-sh/uv) if needed and puts `beakr` in `~/.local/bin`. It installs the CLI from GitHub (`uv tool install git+https://github.com/BeakrHub/beakr-cli`), not from PyPI: PyPI still has 0.3.3, and the session hooks and current MCP tools need 0.4.0 or later. If you installed from PyPI before, run the installer again to replace it.
+The installer installs [`uv`](https://github.com/astral-sh/uv) if needed and puts `beakr` in `~/.local/bin`. It installs the CLI from PyPI (`uv tool install beakr-cli`). The session hooks and current MCP tools need beakr-cli 0.4.0 or later; on an older install, run `beakr update`, or run the installer again.
 
 **Signing in.** Use one of these; the local MCP server, the hooks and the Beakr SDKs all pick up whichever you choose:
 
