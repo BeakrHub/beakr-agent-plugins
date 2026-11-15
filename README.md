@@ -140,13 +140,13 @@ Until the hosted server is live, Claude Desktop can use the local server: add th
 Needs beakr-cli 0.4.0 or later (run the installer above to get it). Set these in the environment your agent starts from, or in the `env` of the `beakr` MCP entry:
 
 - **Tool listing.** The server lists every Beakr tool, because Claude Code calls only the tools a server lists. `BEAKR_MCP_TOOLS=eager` lists a smaller set plus `discover_tools`, which adds the tools it finds to the listing.
-- **Write attribution.** Every Knowledge write the server makes records the agent that made it: the client's own name and version (`claude-code/2.1.283`, `codex-mcp-client/0.40.0`), shown on proposals as "filed by Dana Reyes via claude-code/2.1". When several agents share one API key, give each MCP entry its own `BEAKR_AGENT` label (`"env": {"BEAKR_AGENT": "reviewer"}`); it overrides the client's name.
+- **Write attribution.** Every Knowledge write the server makes records the agent that made it (the client's own name and version, such as `claude-code/2.1.283`) and the agent's session, and reads as "Claude Code for Dana Reyes, via beakr-mcp 0.6.0, session 7f3c21d0" on proposals and in history. `log`, `proposals` and `ls` filter by person, agent, session and date. When several agents share one API key, give each MCP entry its own `BEAKR_AGENT` label (`"env": {"BEAKR_AGENT": "reviewer"}`); it overrides the client's name.
 - **Self-hosted Beakr.** On an installation that leaves out hosted features (integrations, skills, organization administration), the server does not list their tools (`skills` and `org_audit_log`, for example), and `beakr doctor` names the missing areas. When the CLI came with the installation, `beakr_version` says so and `update_beakr` does not run: the installation upgrades it.
 - **Update checks.** `BEAKR_NO_UPDATE_CHECK=1` stops the CLI asking PyPI for a newer release; `beakr_version` and `update_beakr` then say update checks are off.
 
 ## Local or hosted MCP server
 
-The plugins ship the **local** server (`beakr mcp` over stdio). Beakr's hosted MCP server (streamable HTTP with OAuth, so no CLI needed) is not live in production yet. One switch moves every plugin over when it is:
+The plugins ship the **local** server (`beakr mcp` over stdio). Beakr's hosted MCP server (streamable HTTP with OAuth, so no CLI needed) runs in production for chat apps (Claude.ai, ChatGPT); the plugins keep the local server because the session hooks, local file uploads and `update_beakr` need the CLI. One switch moves every plugin over if that changes:
 
 1. In [`mcp-variant.json`](mcp-variant.json), set `"remote_live": true` (only once `remote_url` serves Beakr in production) and `"variant": "remote"`.
 2. Run `tools/render_configs.py`. It rewrites `.mcp.json` (Claude Code), `mcp.json` (Codex, Cursor, VS Code) and `gemini-extension.json`; the examples for both servers are always generated.
